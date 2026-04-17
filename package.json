@@ -1,0 +1,12 @@
+{
+  "name": "aastmt-room-system",
+  "version": "1.0.0",
+  "description": "Firebase Serverless Frontend",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve Frontend -l tcp://0.0.0.0:$PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
