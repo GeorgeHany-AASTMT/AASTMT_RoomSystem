@@ -36,6 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Age Validation (min 18 years)
+            const birthday = document.getElementById('birthday').value;
+            if (!birthday) {
+                showAlert('Please enter your birthday.');
+                return;
+            }
+            const birthDate = new Date(birthday);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            if (age < 18) {
+                showAlert('You must be at least 18 years old to sign up.');
+                return;
+            }
+
             const email = document.getElementById('email').value;
             const empId = document.getElementById('emp-id').value;
 

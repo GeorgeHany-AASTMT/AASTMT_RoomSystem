@@ -1,6 +1,6 @@
 import { auth, db } from './firebase-config.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { collection, addDoc, getDocs, updateDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, updateDoc, doc, serverTimestamp, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const userJson = localStorage.getItem('user');
@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('userName').textContent = `${user.fullname} (${user.department})`;
 
-    if (roleId === 1) { // Admin Panel Injection
+    const permittedAdminRoles = [1, 2];
+    if (permittedAdminRoles.includes(roleId)) { // Admin/Manager Panel Injection
         const navDiv = document.querySelector('nav .flex.items-center.gap-4:last-child');
         const adminBtn = document.createElement('a');
         adminBtn.href = 'admin.html';
@@ -97,14 +98,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = e.target.querySelector('button[type="submit"]');
             btn.textContent = 'Submitting...'; btn.disabled = true;
 
+            // -- Role-Based Workflow Logic --
+            let finalStatus = 'Pending';
+            let notifyAdmin = false;
+
+            if (roleId === 1) { // Admin
+                if (type === 'lecture') finalStatus = 'Approved';
+                else finalStatus = 'Pending'; // Remains Pending for Branch Manager
+            } else if (roleId === 2) { // Branch Manager
+                finalStatus = 'Approved'; 
+                notifyAdmin = true; // Will send message to Admin mailbox
+            } else {
+                finalStatus = 'Pending'; // Employees and Secretaries always wait
+            }
+
             const payload = {
                 user_id: user.uid,
+                fullname: user.fullname,
                 emp_id: user.emp_id,
                 department: user.department,
                 room_type: type,
                 title: document.getElementById('bm-title').value,
                 start_time: document.getElementById('bm-start').value,
-                status: (type === 'multi_purpose' && roleId === 1) ? 'Requires Branch Manager' : 'Pending', // Admin still needs BM approval for M-P
+                status: finalStatus,
                 created_at: serverTimestamp(),
             };
 
@@ -116,14 +132,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 await addDoc(collection(db, "Bookings"), payload);
-                alert('Booking successfully requested!');
+                
+                if (notifyAdmin) {
+                    await addDoc(collection(db, "Messages"), {
+                        to: "admin",
+                        from: user.fullname,
+                        msg: `The Branch Manager (${user.fullname}) has requested the room: ${document.getElementById('bm-title').value}.`,
+                        created_at: serverTimestamp()
+                    });
+                }
+
+                alert('Booking successfully processed!');
                 document.getElementById('bookingModal').remove();
+                loadStats();
             } catch (err) {
                 alert('Database Error: ' + err.message);
                 btn.textContent = 'Confirm Request'; btn.disabled = false;
             }
         });
     }
+
+    // -- Real-Time Booking Synchronization --
+    function initBookingSync() {
+        // My Bookings Table (Real-Time)
+        const qAll = query(collection(db, "Bookings"), where("user_id", "==", user.uid));
+        onSnapshot(qAll, (snap) => {
+            const tbody = document.getElementById('myBookingsTable');
+            if (snap.empty) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No bookings found.</td></tr>';
+                return;
+            }
+            let html = '';
+            snap.forEach(d => {
+                const data = d.data();
+                const statusClass = (data.status === 'Approved') ? 'text-green-700 bg-green-100' : 
+                                  (data.status === 'Rejected') ? 'text-red-700 bg-red-100' : 'text-yellow-700 bg-yellow-100';
+                html += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-4 capitalize font-medium">${data.room_type.replace('_', ' ')}</td>
+                        <td class="p-4 font-bold text-primary">${data.title}</td>
+                        <td class="p-4 text-xs font-mono">${data.start_time.replace('T', ' ')}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${data.status}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        });
+    }
+
+    initBookingSync();
 
     window.openModal = openModal; // Bind to window so inline onclick works from dynamically built buttons
 

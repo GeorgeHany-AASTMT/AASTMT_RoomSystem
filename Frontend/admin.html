@@ -41,7 +41,10 @@
 <main class="max-w-7xl mx-auto p-8 mt-6">
     <!-- Active Tab Selection -->
     <div class="flex gap-4 mb-8">
-        <button id="tab-pending" class="px-6 py-2 bg-primary-container text-white font-bold rounded-lg shadow-sm">Pending Approvals</button>
+        <button id="tab-pending" class="px-6 py-2 bg-primary-container text-white font-bold rounded-lg shadow-sm">Account Requests</button>
+        <button id="tab-bookings" class="px-6 py-2 bg-surface-container-highest text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Room Configuration</button>
+        <button id="tab-mailbox" class="px-6 py-2 bg-surface-container-highest text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Admin Mailbox</button>
+        <button id="tab-delegation" class="px-6 py-2 bg-surface-container-highest text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Role Delegation</button>
         <button id="tab-overrides" class="px-6 py-2 bg-surface-container-highest text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">User Overrides</button>
     </div>
 
@@ -65,6 +68,62 @@
                     <tr><td colspan="5" class="p-4 text-center text-gray-500">Loading pending requests...</td></tr>
                 </tbody>
             </table>
+        </div>
+    </section>
+
+    <!-- Section: Booking Requests -->
+    <section id="section-bookings" class="bg-white p-8 rounded-xl border border-surface-container-highest shadow-sm hidden">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="font-headline text-2xl font-bold mb-2">Room Booking Workflow</h2>
+                <p class="text-gray-600 font-medium">Manage lecture and multi-purpose room requests across campus.</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded">● Pending Admin</span>
+                <span class="flex items-center gap-1 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">● Pending Manager</span>
+                <span class="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">● Approved</span>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-700 text-sm font-bold uppercase tracking-wider">
+                        <th class="p-4 border-b">Room Type</th>
+                        <th class="p-4 border-b">Purpose / Title</th>
+                        <th class="p-4 border-b">Requested By</th>
+                        <th class="p-4 border-b">Time Slot</th>
+                        <th class="p-4 border-b">Status</th>
+                        <th class="p-4 border-b">Workflow Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTable" class="text-sm">
+                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Loading bookings...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Section: Admin Mailbox -->
+    <section id="section-mailbox" class="bg-white p-8 rounded-xl border border-surface-container-highest shadow-sm hidden">
+        <h2 class="font-headline text-2xl font-bold mb-2 text-primary-container">Admin Mailbox</h2>
+        <p class="text-gray-600 mb-6 font-medium">Notifications and requests from the Branch Manager.</p>
+        <div id="mailboxList" class="space-y-4">
+            <p class="text-center py-8 text-gray-500 italic">No new messages.</p>
+        </div>
+    </section>
+
+    <!-- Section: Role Delegation -->
+    <section id="section-delegation" class="bg-white p-8 rounded-xl border border-surface-container-highest shadow-sm hidden">
+        <h2 class="font-headline text-2xl font-bold mb-2 text-secondary">Role Delegation</h2>
+        <p class="text-gray-600 mb-6 font-medium">Assign your administrative privileges to an employee temporarily.</p>
+        <div class="max-w-md bg-surface p-6 rounded-lg border border-gray-200">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Employee ID to Delegate To:</label>
+            <div class="flex gap-2 mb-4">
+                <input id="delegateEmpId" type="text" class="flex-1 px-4 py-2 border rounded focus:ring-2 focus:ring-secondary" placeholder="e.g. 3001">
+                <button onclick="handleDelegation()" class="bg-secondary text-white px-6 py-2 rounded-lg font-bold hover:opacity-90">Delegate Now</button>
+            </div>
+            <p class="text-xs text-gray-500 italic">This will set the employee's role ID to 1. Use the "User Overrides" tab to revoke access.</p>
         </div>
     </section>
 

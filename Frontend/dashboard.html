@@ -38,20 +38,7 @@
 
 <main class="max-w-7xl mx-auto p-8 mt-6">
     <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div class="bg-white p-6 rounded-xl border border-surface-container-highest shadow-sm">
-            <h3 class="text-sm font-bold text-gray-500 uppercase">My Requests</h3>
-            <p class="text-3xl font-headline font-bold mt-2">0</p>
-        </div>
-        <div class="bg-white p-6 rounded-xl border border-surface-container-highest shadow-sm">
-            <h3 class="text-sm font-bold text-gray-500 uppercase">Approved</h3>
-            <p class="text-3xl font-headline font-bold mt-2 text-green-600">0</p>
-        </div>
-        <div class="bg-white p-6 rounded-xl border border-surface-container-highest shadow-sm">
-            <h3 class="text-sm font-bold text-gray-500 uppercase">Pending Actions</h3>
-            <p class="text-3xl font-headline font-bold mt-2 text-secondary">0</p>
-        </div>
-    </div>
+
 
     <!-- Booking Form Section Placeholder -->
     <section class="bg-white p-8 rounded-xl border border-surface-container-highest shadow-sm">
@@ -69,6 +56,25 @@
                 <span class="font-bold text-lg text-gray-700 group-hover:text-secondary">Multi-Purpose Room</span>
                 <span class="text-sm text-gray-500 mt-2">Requires Branch Manager approval</span>
             </button>
+        </div>
+    </section>
+    <!-- My Recent Bookings -->
+    <section class="mt-8 bg-white p-8 rounded-xl border border-surface-container-highest shadow-sm">
+        <h2 class="font-headline text-2xl font-bold mb-4">My Recent Bookings</h2>
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-700 text-sm font-bold uppercase">
+                        <th class="p-4 border-b">Room</th>
+                        <th class="p-4 border-b">Title</th>
+                        <th class="p-4 border-b">Time Slot</th>
+                        <th class="p-4 border-b">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="myBookingsTable" class="text-sm">
+                    <tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No bookings found.</td></tr>
+                </tbody>
+            </table>
         </div>
     </section>
 </main>

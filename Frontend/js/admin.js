@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Verify Admin Status
@@ -7,39 +7,181 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!userJson) return window.location.href = 'login.html';
     
     const user = JSON.parse(userJson);
-    if (user.role_id !== 1) {
-        alert('Access Denied. You are not an Admin.');
+    const permittedRoles = [1, 2];
+    if (!permittedRoles.includes(user.role_id)) {
+        alert('Access Denied. Insufficient Permissions.');
         window.location.href = 'dashboard.html';
         return;
     }
-    document.getElementById('adminName').textContent = user.name + ' (Admin)';
+    const roleName = user.role_id === 1 ? 'Admin' : 'Branch Manager';
+    document.getElementById('adminName').textContent = user.fullname + ' (' + roleName + ')';
 
-    // Tab Logic
     const tabPending = document.getElementById('tab-pending');
+    const tabBookings = document.getElementById('tab-bookings');
+    const tabMailbox = document.getElementById('tab-mailbox');
+    const tabDelegation = document.getElementById('tab-delegation');
     const tabOverrides = document.getElementById('tab-overrides');
+    
     const secPending = document.getElementById('section-pending');
+    const secBookings = document.getElementById('section-bookings');
+    const secMailbox = document.getElementById('section-mailbox');
+    const secDelegation = document.getElementById('section-delegation');
     const secOverrides = document.getElementById('section-overrides');
 
+    // Role-Based Tab Visibility (CRITICAL)
+    if (user.role_id === 2) { // Branch Manager
+        [tabPending, tabMailbox, tabDelegation, tabOverrides].forEach(t => t.classList.add('hidden'));
+        setActiveTab(tabBookings, secBookings);
+        loadBookings();
+    } else {
+        setActiveTab(tabPending, secPending);
+        loadPendingUsers();
+    }
+
+    function resetTabs() {
+        [tabPending, tabBookings, tabMailbox, tabDelegation, tabOverrides].forEach(t => {
+            t.classList.remove('bg-primary-container', 'text-white');
+            t.classList.add('bg-surface-container-highest', 'text-gray-700');
+        });
+        [secPending, secBookings, secMailbox, secDelegation, secOverrides].forEach(s => s.classList.add('hidden'));
+    }
+
+    function setActiveTab(tab, sec) {
+        resetTabs();
+        tab.classList.replace('bg-surface-container-highest', 'bg-primary-container');
+        tab.classList.replace('text-gray-700', 'text-white');
+        sec.classList.remove('hidden');
+    }
+
     tabPending.addEventListener('click', () => {
-        tabPending.classList.replace('bg-surface-container-highest', 'bg-primary-container');
-        tabPending.classList.replace('text-gray-700', 'text-white');
-        tabOverrides.classList.replace('bg-primary-container', 'bg-surface-container-highest');
-        tabOverrides.classList.replace('text-white', 'text-gray-700');
-        secPending.classList.remove('hidden');
-        secOverrides.classList.add('hidden');
+        setActiveTab(tabPending, secPending);
+        loadPendingUsers();
+    });
+
+    tabBookings.addEventListener('click', () => {
+        setActiveTab(tabBookings, secBookings);
+        loadBookings();
+    });
+
+    tabMailbox.addEventListener('click', () => {
+        setActiveTab(tabMailbox, secMailbox);
+        loadMessages();
+    });
+
+    tabDelegation.addEventListener('click', () => {
+        setActiveTab(tabDelegation, secDelegation);
     });
 
     tabOverrides.addEventListener('click', () => {
-        tabOverrides.classList.replace('bg-surface-container-highest', 'bg-primary-container');
-        tabOverrides.classList.replace('text-gray-700', 'text-white');
-        tabPending.classList.replace('bg-primary-container', 'bg-surface-container-highest');
-        tabPending.classList.replace('text-white', 'text-gray-700');
-        secOverrides.classList.remove('hidden');
-        secPending.classList.add('hidden');
+        setActiveTab(tabOverrides, secOverrides);
         loadActiveUsers();
     });
 
-    // 2. Fetch Pending Users
+    // 2. Fetch Booking Requests (Real-Time)
+    function loadBookings() {
+        const tbody = document.getElementById('bookingsTable');
+        const q = query(collection(db, "Bookings"), orderBy("created_at", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center">No bookings found.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const dateStr = data.start_time ? data.start_time.replace('T', ' ') : 'N/A';
+                
+                // Status Color Logic
+                let statusClass = 'text-gray-500 bg-gray-100';
+                if (data.status === 'Pending') statusClass = 'text-yellow-700 bg-yellow-100';
+                if (data.status === 'Approved') statusClass = 'text-green-700 bg-green-100';
+                if (data.status === 'Rejected') statusClass = 'text-red-700 bg-red-100';
+
+                // Action Logic
+                let actions = '';
+                if (user.role_id === 2) { // Branch Manager (Primary Approver)
+                    if (data.status === 'Pending') {
+                        actions = `<button onclick="handleBooking('${docSnap.id}', 'Approved')" class="bg-secondary text-white px-3 py-1 rounded text-xs font-bold shadow-sm">Approve</button>`;
+                    }
+                } else if (user.role_id === 1) { // Admin
+                    if (data.status === 'Pending') {
+                        actions = `<button onclick="handleBooking('${docSnap.id}', 'Approved')" class="bg-primary text-white px-3 py-1 rounded text-xs font-bold">Admin Force Approve</button>`;
+                    }
+                }
+
+                if (data.status === 'Pending') {
+                    actions += ` <button onclick="handleBooking('${docSnap.id}', 'Rejected')" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded text-xs font-bold ml-1">Reject</button>`;
+                }
+
+                html += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-4 capitalize font-medium">${data.room_type.replace('_', ' ')}</td>
+                        <td class="p-4 font-bold text-primary">${data.title}</td>
+                        <td class="p-4">
+                            <div class="font-bold">${data.fullname || 'Unknown'}</div>
+                            <div class="text-xs text-gray-500">Dept: ${data.department}</div>
+                        </td>
+                        <td class="p-4 text-xs font-mono">${dateStr}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${data.status}</span></td>
+                        <td class="p-4">${actions}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        });
+    }
+
+    // 3. Fetch Admin Mailbox (Real-Time)
+    function loadMessages() {
+        const container = document.getElementById('mailboxList');
+        const q = query(collection(db, "Messages"), where("to", "==", "admin"), orderBy("created_at", "desc"));
+        
+        onSnapshot(q, (snap) => {
+            if (snap.empty) {
+                container.innerHTML = '<p class="text-center py-8 text-gray-500 italic">No new messages.</p>';
+                return;
+            }
+
+            let html = '';
+            snap.forEach(d => {
+                const data = d.data();
+                const timeStr = data.created_at ? data.created_at.toDate().toLocaleString() : 'Just now';
+                html += `
+                    <div class="bg-blue-50 p-4 border-l-4 border-primary rounded shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-primary-container">From: ${data.from}</span>
+                            <span class="text-xs text-gray-500">${timeStr}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 font-medium">${data.msg}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    // -- Role Delegation --
+    window.handleDelegation = async () => {
+        const empId = document.getElementById('delegateEmpId').value;
+        if (!empId) return alert('Enter an Employee ID');
+
+        if (!confirm(`Delegate Admin privileges to Employee ID: ${empId}?`)) return;
+
+        try {
+            const q = query(collection(db, "Users"), where("emp_id", "==", empId));
+            const snap = await getDocs(q);
+            if (snap.empty) return alert('Employee not found!');
+
+            const userDoc = snap.docs[0];
+            await updateDoc(doc(db, "Users", userDoc.id), { role_id: 1 });
+            alert('Delegation Successful. Role updated to Admin.');
+            document.getElementById('delegateEmpId').value = '';
+        } catch(e) { alert(e.message); }
+    };
+
+    // 3. Fetch Pending Users
     async function loadPendingUsers() {
         const tbody = document.getElementById('pendingUsersTable');
         try {
@@ -126,6 +268,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             await deleteDoc(doc(db, "Users", uid));
             loadPendingUsers();
         } catch(e) { alert(e.message); }
+    };
+
+    window.handleBooking = async (bid, newStatus) => {
+        const action = newStatus === 'Rejected' ? 'reject' : 'approve';
+        if(!confirm(`Are you sure you want to ${action} this booking?`)) return;
+        
+        try {
+            const updatePayload = { status: newStatus };
+            if (newStatus === 'Rejected') {
+                const reason = prompt("Enter rejection reason (optional):");
+                if (reason) updatePayload.rejection_reason = reason;
+            }
+            await updateDoc(doc(db, "Bookings", bid), updatePayload);
+            loadBookings();
+        } catch(e) { alert('Update failed: ' + e.message); }
     };
 
     window.toggleOverride = async (uid, newValue) => {
