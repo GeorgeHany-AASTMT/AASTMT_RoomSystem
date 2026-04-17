@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (roleId === 1) buttonsContainer.innerHTML = createLectureButton() + createMultiPurposeButton();
-    else if (roleId === 2) buttonsContainer.innerHTML = `<p class="italic p-8">Branch Manager View: Check the Admin Portal to approve Multi-Purpose requests.</p>`;
+    else if (roleId === 2) buttonsContainer.innerHTML = createLectureButton() + createMultiPurposeButton(); // BM: both rooms, auto-approved
     else if (roleId === 3) buttonsContainer.innerHTML = createLectureButton() + createMultiPurposeButton();
     else if (roleId === 4) buttonsContainer.innerHTML = `
         <div class="col-span-2">${createMultiPurposeButton()}</div>
