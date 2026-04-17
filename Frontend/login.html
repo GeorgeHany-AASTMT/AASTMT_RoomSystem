@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Login | AASTMT Academic Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#001b3d", "tertiary-fixed": "#d4e4f6", "primary": "#000a1e", "surface": "#f8f9fa",
+                        "on-error-container": "#93000a", "inverse-surface": "#2e3132", "inverse-primary": "#aec7f6",
+                        "surface-tint": "#465f88", "primary-container": "#002147", "on-tertiary": "#ffffff", "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff", "outline": "#74777f", "surface-bright": "#f8f9fa", "surface-dim": "#d9dadb",
+                        "on-surface": "#191c1d", "primary-fixed-dim": "#aec7f6", "tertiary-fixed-dim": "#b8c8da",
+                        "on-secondary-fixed": "#241a00", "on-tertiary-container": "#7b8b9b", "on-primary-container": "#708ab5",
+                        "on-surface-variant": "#44474e", "surface-variant": "#e1e3e4", "on-secondary-container": "#745c00",
+                        "on-error": "#ffffff", "primary-fixed": "#d6e3ff", "outline-variant": "#c4c6cf",
+                        "on-secondary-fixed-variant": "#574500", "on-tertiary-fixed": "#0d1d2a", "secondary-fixed": "#ffe088",
+                        "error": "#ba1a1a", "tertiary-container": "#132330", "surface-container-high": "#e7e8e9",
+                        "secondary-container": "#fed65b", "on-tertiary-fixed-variant": "#394857", "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4", "on-background": "#191c1d", "secondary": "#735c00",
+                        "inverse-on-surface": "#f0f1f2", "surface-container": "#edeeef", "secondary-fixed-dim": "#e9c349",
+                        "error-container": "#ffdad6", "background": "#f8f9fa", "surface-container-low": "#f3f4f5",
+                        "tertiary": "#000c18", "on-primary-fixed-variant": "#2d476f"
+                    },
+                    fontFamily: {
+                        headline: ["Manrope"], body: ["Inter"], label: ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<main class="flex min-h-screen">
+    <!-- Left Side: Branding -->
+    <section class="hidden lg:flex w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-primary-container text-white">
+        <div class="absolute inset-0 opacity-40 bg-[linear-gradient(135deg,#000a1e_0%,#002147_100%)]"></div>
+        <div class="absolute inset-0 opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQk5D1EnfxZBT5eLqnHqVNft0RcPAHcDgA-HZBttGUMPogrVEysDvALtG1KyNr7P_tWnWOiEz-sQhxGWjj-isYuSUCUMBqnY9L2H4rypL3xWixJl3HnSFJXy0HwE5jFWWVlcEwNOhF-mlA2EgP31hycp7_h9HLxn1zCYYR_97-j9CWxCRjPHykNuYLE7bWub-8i2VdoWfmnex1oU9nnL4DTA15cei-0crMPqketk0TDzoTRnj_B4cQRKO4Vq9Ks5gKyw4QsZIKEezp');"></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-16">
+                <img alt="AASTMT Logo" class="object-contain rounded-xl shadow-lg shadow-secondary/20 h-16 w-16" src="https://upload.wikimedia.org/wikipedia/commons/d/da/AASTMT_Logo.png">
+                <div>
+                    <h1 class="font-headline font-extrabold text-2xl tracking-tighter leading-none">AASTMT</h1>
+                    <p class="font-label text-xs uppercase tracking-[0.2em] text-secondary-fixed-dim">Academic Portal</p>
+                </div>
+            </div>
+            <div class="max-w-md">
+                <h2 class="font-headline text-5xl font-extrabold tracking-tight mb-6 leading-[1.1]">Welcome Back to <span class="text-secondary-fixed">Campus</span></h2>
+                <p class="text-on-primary-container text-lg leading-relaxed">Securely access your bookings, approve requests, and monitor activity across AASTMT facilities.</p>
+            </div>
+        </div>
+        <div class="relative z-10">
+            <p class="mt-12 text-xs text-on-primary-container/60 font-label uppercase tracking-widest">© 2024 Arab Academy for Science, Technology and Maritime Transport.</p>
+        </div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-secondary rounded-full blur-[120px] opacity-20"></div>
+    </section>
+
+    <!-- Right Side: Login Form -->
+    <section class="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 md:p-12 lg:p-24 bg-surface-container-lowest">
+        <div class="w-full max-w-md">
+            <!-- Mobile Logo -->
+            <div class="lg:hidden flex items-center gap-3 mb-8">
+                <div class="h-10 w-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-secondary-fixed text-2xl">account_balance</span>
+                </div>
+                <span class="font-headline font-black text-xl text-primary-container tracking-tighter uppercase">AASTMT</span>
+            </div>
+
+            <div class="mb-10">
+                <h3 class="font-headline text-3xl font-extrabold text-primary tracking-tight mb-2">Sign In</h3>
+                <p class="text-on-surface-variant font-medium">Access your portal dashboard.</p>
+            </div>
+
+            <form class="space-y-5" id="login-form">
+                <!-- Employee ID -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-bold text-primary font-label" for="emp-id">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-xl">email</span>
+                        <input class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline/60 font-medium transition-all" id="emp-id" placeholder="example@aast.edu" type="email" required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-1.5">
+                    <label class="text-sm font-bold text-primary font-label" for="password">Password</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-xl">lock</span>
+                        <input class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline/60 font-medium transition-all" id="password" placeholder="••••••••" type="password" required>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="rounded text-secondary focus:ring-secondary border-outline-variant bg-surface-container-highest h-4 w-4">
+                        <span class="text-sm font-medium text-on-surface-variant">Remember me</span>
+                    </label>
+                    <a href="#" class="text-sm font-bold text-primary hover:underline underline-offset-4">Forgot Password?</a>
+                </div>
+
+                <button class="w-full font-headline font-bold py-4 rounded-xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 hover:opacity-90" style="background-color: rgb(212, 175, 55); color: rgb(0, 33, 71); box-shadow: rgba(212, 175, 55, 0.3) 0px 10px 15px -3px;" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined">login</span>
+                </button>
+            </form>
+
+            <div id="alertBox" class="hidden mt-8 flex items-center gap-3 p-4 rounded-xl border border-error/20 bg-error-container/30">
+                <span class="material-symbols-outlined text-error" id="alertIcon">error</span>
+                <p class="text-sm font-medium text-on-error-container" id="alertMsg"></p>
+            </div>
+
+            <div class="mt-10 text-center">
+                <p class="text-on-surface-variant font-medium">Need an account? <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="signup.html">Request Access</a></p>
+            </div>
+        </div>
+    </section>
+</main>
+<script type="module" src="js/auth.js"></script>
+</body>
+</html>
